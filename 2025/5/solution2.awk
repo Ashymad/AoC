@@ -2,24 +2,6 @@
 function compare(i1, v1, i2, v2) {
     return v1[0] == v2[0] ? 0 : (v1[0] < v2[0] ? -1 : 1)
 }
-function max(a,b) {
-    return a > b ? a : b
-}
-function find(ranges, val,
-                        idx, len, divider, jump) {
-    len = length(ranges)
-    idx = int(len/2)+1
-    for (divider = 2; 1; divider *= 2) {
-        jump = (val < ranges[idx][0] ? -1 : (val > ranges[idx][1] ? 1 : 0))*max(1, int(len/divider))
-        if (jump == 0 || (jump == 1 && (idx == len || ranges[idx+1][0] > val)) || (jump == -1 && (idx == 1 || ranges[idx-1][1] < val)))
-            break
-        if (idx + jump < 1 || idx + jump > len)
-            continue;
-        idx += jump
-    }
-
-    return idx
-}
 function consolidate(ranges,
                      i, idx, len) {
     len = length(ranges)
@@ -44,18 +26,15 @@ BEGIN {
 }
 {
     if ($0 == "") {
-        idx=-1
         asort(ranges, ranges, "compare");
         consolidate(ranges);
-    } else if (idx == -1) {
-        found = find(ranges, $1);
-        if ($1 >= ranges[found][0] && $1 <= ranges[found][1])
-            sum++;
+        for (i in ranges) {
+            sum += 1 + ranges[i][1] - ranges[i][0]
+        }
+        print sum
+        exit 0
     } else {
         ranges[idx][0] = $1
         ranges[idx++][1] = $2
     }
-}
-END {
-    print sum
 }
